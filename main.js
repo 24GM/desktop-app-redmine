@@ -1,22 +1,15 @@
 'use strict';
 
-// Electronのモジュール
-const electron = require("electron");
-
-// アプリケーションをコントロールするモジュール
-const app = electron.app;
-
-// ウィンドウを作成するモジュール
-const BrowserWindow = electron.BrowserWindow;
+const electron = require("electron"); // Electronのモジュール
+const app = electron.app;   // アプリケーションをコントロールするモジュール
+const BrowserWindow = electron.BrowserWindow;   // ウィンドウを作成するモジュール
+let mainWindow;   // メインウィンドウはGCされないようにグローバル宣言
 
 // メニューバーの宣言
-// var remote = require('remote');
 var remote = electron.remote;
 var Tray = electron.Tray;
 var Menu = electron.Menu;
-
-// メインウィンドウはGCされないようにグローバル宣言
-let mainWindow;
+let settingWindow;    //setting windows を定義
 
 // 全てのウィンドウが閉じたら終了
 app.on('window-all-closed', function() {
@@ -31,17 +24,19 @@ app.on('ready', function() {
 mainWindow = new BrowserWindow({width: 1000, height: 600});
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 
-var appIcon = null
+// タスクトレイにアイコンと表示
 var appIcon = new Tray( __dirname + '/images/redmine_icon_color_24.png');
+
   // コンテキストメニュー追加
   const contextMenu = Menu.buildFromTemplate([
-     {label: 'settings'},
-     {label: 'readme'},
-     {label: "終了", click: function () { mainWindow.close(); } }
+     {label: 'settings', click: function(){
+      settingWindow = new BrowserWindow({width: 1000, height: 600});
+          settingWindow.loadURL('file://' + __dirname + '/setting.html');
+      }},
+     {label: "exit", click: function () { mainWindow.close(); } }
   ]);
   appIcon.setContextMenu(contextMenu);
-  // アイコンにマウスオーバーした時の説明
-  appIcon.setToolTip('desktop-app-redmine.');
+    appIcon.setToolTip('desktop-app-redmine.');   // アイコンにマウスオーバーした時の説明
 
   // ウィンドウが閉じられたらアプリも終了
   mainWindow.on('closed', function() {
